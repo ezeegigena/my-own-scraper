@@ -1,0 +1,19 @@
+# Free proxy list - these will be rotated automatically
+# Format: ip:port
+# You can add more proxies here or use paid proxy services
+
+# Example free proxies (these may not work, replace with working ones)
+8.210.83.33:80
+47.74.152.29:8888
+43.134.68.153:3128
+103.149.162.194:80
+185.15.172.212:3128
+
+# For production, consider using paid proxy services like:
+# - Bright Data (formerly Luminati)
+# - Oxylabs
+# - SmartProxy
+# - ProxyMesh
+# - Storm Proxies
+
+# Residential proxies work better than datacenter proxies for Google

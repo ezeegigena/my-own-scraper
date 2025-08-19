@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Lead Scraper</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .search-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .platform-selector {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .platform-selector h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .platform-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .platform-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .platform-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .platform-option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .platform-option input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .platform-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+            width: 25px;
+            text-align: center;
+        }
+
+        .platform-icon.linkedin { color: #0077b5; }
+        .platform-icon.instagram { color: #e4405f; }
+        .platform-icon.facebook { color: #1877f2; }
+        .platform-icon.googlemaps { color: #34a853; }
+
+        .select-all-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-all-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .progress-container {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .results-container {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .results-container.show {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f3f4;
+        }
+
+        .results-header h2 {
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .platform-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+
+        .platform-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .platform-badge.linkedin { background: #0077b5; }
+        .platform-badge.instagram { background: #e4405f; }
+        .platform-badge.facebook { background: #1877f2; }
+        .platform-badge.googlemaps { background: #34a853; }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-btn {
+            background: #28a745;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+
+        .export-btn:hover {
+            background: #218838;
+        }
+
+        .excel-btn {
+            background: #217346;
+        }
+
+        .excel-btn:hover {
+            background: #1e6b42;
+        }
+
+        .result-item {
+            padding: 20px;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+            position: relative;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .result-platform-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .result-position {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 0.9rem;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1a0dab;
+            margin-bottom: 5px;
+            text-decoration: none;
+            display: inline-block;
+            padding-right: 120px;
+        }
+
+        .result-title:hover {
+            text-decoration: underline;
+        }
+
+        .result-url {
+            color: #006621;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .result-description {
+            color: #545454;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .social-stats {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .social-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+        }
+
+        .social-stat.phone { color: #28a745; font-weight: 600; }
+        .social-stat.email { color: #007bff; font-weight: 600; }
+        .social-stat.location { color: #dc3545; font-weight: 600; }
+        .social-stat.followers { color: #6f42c1; font-weight: 600; }
+        .social-stat.rating { color: #ffc107; font-weight: 600; }
+
+        .verified-badge {
+            background: #1da1f2;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding: 20px 0;
+        }
+
+        .pagination button {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #333;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .current-page {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination-info {
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .history-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background 0.3s ease;
+        }
+
+        .history-item:hover {
+            background: #f8f9fa;
+        }
+
+        .history-query {
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .history-meta {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .platform-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .search-card {
+                padding: 25px;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .export-buttons {
+                flex-direction: column;
+            }
+
+            .history-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .pagination {
+                flex-wrap: wrap;
+            }
+
+            .social-stats {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-share-alt"></i> Social Media Lead Scraper</h1>
+            <p>Find businesses on LinkedIn, Instagram, Facebook & Google Maps</p>
+        </div>
+
+        <div class="search-card">
+            <div class="platform-selector">
+                <h3><i class="fas fa-bullseye"></i> Select Social Media Platforms:</h3>
+                <div class="platform-options">
+                    <div class="platform-option" data-platform="linkedin">
+                        <input type="checkbox" id="linkedin" value="linkedin">
+                        <i class="platform-icon linkedin fab fa-linkedin"></i>
+                        <span>LinkedIn</span>
+                    </div>
+                    <div class="platform-option" data-platform="instagram">
+                        <input type="checkbox" id="instagram" value="instagram">
+                        <i class="platform-icon instagram fab fa-instagram"></i>
+                        <span>Instagram</span>
+                    </div>
+                    <div class="platform-option" data-platform="facebook">
+                        <input type="checkbox" id="facebook" value="facebook">
+                        <i class="platform-icon facebook fab fa-facebook"></i>
+                        <span>Facebook</span>
+                    </div>
+                    <div class="platform-option" data-platform="googlemaps">
+                        <input type="checkbox" id="googlemaps" value="googlemaps">
+                        <i class="platform-icon googlemaps fas fa-map-marker-alt"></i>
+                        <span>Google Maps</span>
+                    </div>
+                </div>
+                <button type="button" class="select-all-btn" onclick="selectAllPlatforms()">
+                    <i class="fas fa-check-double"></i> Select All
+                </button>
+            </div>
+
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="businessType">Tipo de Negocio / Type of Business *</label>
+                    <input type="text" id="businessType" class="form-control" placeholder="ej: abogados, restaurantes, dentistas, inmobiliarias..." required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="location">Ubicación en Argentina *</label>
+                        <input type="text" id="location" class="form-control" placeholder="ej: Palermo, Recoleta, Buenos Aires..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="sessionName">Nombre de Sesión (Opcional)</label>
+                        <input type="text" id="sessionName" class="form-control" placeholder="ej: Abogados Palermo Social">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="numResults">Cantidad de Resultados</label>
+                        <input type="number" id="numResults" class="form-control" placeholder="ej: 50, 100, 200..." min="1" value="50">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="searchBtn">
+                    <i class="fas fa-search"></i>
+                    Buscar en Redes Sociales
+                </button>
+            </form>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <h3 id="progressTitle">Buscando en redes sociales...</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">Preparando búsqueda en plataformas sociales...</p>
+            <p><small id="progressMethod">Escaneando LinkedIn, Instagram, Facebook y Google Maps...</small></p>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <div class="results-header">
+                <div>
+                    <h2 id="resultsTitle">Resultados de Redes Sociales</h2>
+                    <div class="platform-badges" id="platformBadges"></div>
+                </div>
+                <div class="export-buttons">
+                    <button class="btn export-btn" id="exportCsvBtn" style="display: none;">
+                        <i class="fas fa-file-csv"></i>
+                        Exportar CSV
+                    </button>
+                    <button class="btn export-btn excel-btn" id="exportExcelBtn" style="display: none;">
+                        <i class="fas fa-file-excel"></i>
+                        Exportar Excel
+                    </button>
+                </div>
+            </div>
+            
+            <div class="pagination-info" id="paginationInfo" style="display: none;"></div>
+            <div id="resultsContent"></div>
+            
+            <div class="pagination" id="pagination" style="display: none;">
+                <button id="prevBtn" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                <span id="pageNumbers"></span>
+                <button id="nextBtn" onclick="changePage(1)">
+                    Siguiente <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div class="history-header">
+                <h2 style="color: #333;">
+                    <i class="fas fa-history"></i> Historial de Búsquedas
+                </h2>
+                <button class="btn btn-danger btn-small" id="clearAllBtn" onclick="clearAllHistory()">
+                    <i class="fas fa-trash"></i> Limpiar Todo
+                </button>
+            </div>
+            <div id="historyContent">
+                <p style="text-align: center; color: #666; padding: 20px;">No hay historial de búsquedas. Comienza realizando una búsqueda arriba.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuery = '';
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalResults = 0;
+
+        // Platform selection functionality
+        document.querySelectorAll('.platform-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('selected', checkbox.checked);
+            });
+        });
+
+        function selectAllPlatforms() {
+            const checkboxes = document.querySelectorAll('.platform-option input[type="checkbox"]');
+            const allSelected = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allSelected;
+                checkbox.closest('.platform-option').classList.toggle('selected', checkbox.checked);
+            });
+            
+            const btn = document.querySelector('.select-all-btn');
+            btn.innerHTML = allSelected ? 
+                '<i class="fas fa-check-double"></i> Select All' : 
+                '<i class="fas fa-times"></i> Deselect All';
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const businessType = document.getElementById('businessType').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const numResults = document.getElementById('numResults').value || 50;
+            const sessionName = document.getElementById('sessionName').value.trim();
+            
+            // Get selected platforms
+            const selectedPlatforms = Array.from(document.querySelectorAll('.platform-option input[type="checkbox"]:checked'))
+                .map(cb => cb.value);
+            
+            if (!businessType || !location) {
+                alert('Por favor ingresa el tipo de negocio y la ubicación');
+                return;
+            }
+
+            if (selectedPlatforms.length === 0) {
+                alert('Por favor selecciona al menos una plataforma social');
+                return;
+            }
+
+            // Build the search query
+            const query = `${businessType} in ${location}`;
+            currentQuery = query;
+            
+            // Show progress
+            document.getElementById('progressContainer').classList.add('show');
+            document.getElementById('resultsContainer').classList.remove('show');
+            document.getElementById('searchBtn').disabled = true;
+            document.getElementById('searchBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Buscando...';
+
+            // Update progress
+            updateProgress(0, `Buscando ${businessType} en ${location} en redes sociales...`);
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        maxResults: parseInt(numResults),
+                        sessionName: sessionName || undefined,
+                        platforms: selectedPlatforms
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Load first page of results
+                    currentPage = 1;
+                    await loadResultsPage(query, 1);
+                    loadHistory(); // Refresh history
+                } else {
+                    showError(data.error || 'Búsqueda falló');
+                }
+            } catch (error) {
+                showError('Error de red: ' + error.message);
+            } finally {
+                // Hide progress
+                document.getElementById('progressContainer').classList.remove('show');
+                document.getElementById('searchBtn').disabled = false;
+                document.getElementById('searchBtn').innerHTML = '<i class="fas fa-search"></i> Buscar en Redes Sociales';
+            }
+        });
+
+        async function loadResultsPage(query, page) {
+            try {
+                const response = await fetch(`/results/page/${page}?query=${encodeURIComponent(query)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+
+                if (data.success) {
+                    displayPaginatedResults(data, query);
+                } else {
+                    showError(data.error || 'Error al cargar página de resultados');
+                }
+            } catch (error) {
+                console.error('Error loading results:', error);
+                showError('Error cargando resultados: ' + error.message);
+            }
+        }
+
+        function displayPaginatedResults(data, query) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsTitle = document.getElementById('resultsTitle');
+            const resultsContent = document.getElementById('resultsContent');
+            const platformBadges = document.getElementById('platformBadges');
+            const exportCsvBtn = document.getElementById('exportCsvBtn');
+            const exportExcelBtn = document.getElementById('exportExcelBtn');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const pagination = document.getElementById('pagination');
+
+            // Update pagination state
+            currentPage = data.pagination.currentPage;
+            totalPages = data.pagination.totalPages;
+            totalResults = data.pagination.totalResults;
+
+            resultsTitle.textContent = `Resultados para "${query}"`;
+            
+            // Show platform badges
+            const platforms = [...new Set(data.results.map(r => r.platform))];
+            platformBadges.innerHTML = platforms.map(platform => {
+                const platformClass = platform.toLowerCase();
+                return `<span class="platform-badge ${platformClass}">
+                    <i class="platform-icon ${platformClass === 'googlemaps' ? 'fas fa-map-marker-alt' : 'fab fa-' + platformClass}"></i>
+                    ${platform.charAt(0).toUpperCase() + platform.slice(1)}
+                </span>`;
+            }).join('');
+            
+            // Show pagination info
+            const startResult = ((currentPage - 1) * data.pagination.pageSize) + 1;
+            const endResult = Math.min(currentPage * data.pagination.pageSize, totalResults);
+            paginationInfo.textContent = `Mostrando ${startResult}-${endResult} de ${totalResults} resultados (Página ${currentPage} de ${totalPages})`;
+            paginationInfo.style.display = 'block';
+            
+            let html = '';
+            data.results.forEach((result, index) => {
+                const globalPosition = ((currentPage - 1) * data.pagination.pageSize) + index + 1;
+                const platformClass = result.platform ? result.platform.toLowerCase() : 'default';
+                const platformIcon = platformClass === 'googlemaps' ? 'fas fa-map-marker-alt' : `fab fa-${platformClass}`;
+                
+                // Build social stats
+                let socialStats = '<div class="social-stats">';
+                if (result.phone) socialStats += `<span class="social-stat phone"><i class="fas fa-phone"></i> ${result.phone}</span>`;
+                if (result.email) socialStats += `<span class="social-stat email"><i class="fas fa-envelope"></i> ${result.email}</span>`;
+                if (result.location) socialStats += `<span class="social-stat location"><i class="fas fa-map-marker-alt"></i> ${result.location}</span>`;
+                if (result.followers) socialStats += `<span class="social-stat followers"><i class="fas fa-users"></i> ${result.followers.toLocaleString()} ${result.platform === 'googlemaps' ? 'reseñas' : 'seguidores'}</span>`;
+                if (result.rating) socialStats += `<span class="social-stat rating"><i class="fas fa-star"></i> ${result.rating}/5.0</span>`;
+                socialStats += '</div>';
+
+                html += `
+                    <div class="result-item">
+                        <div class="result-platform-badge ${platformClass}">
+                            <i class="${platformIcon}"></i>
+                            ${result.source}
+                        </div>
+                        <div style="display: flex; align-items: flex-start;">
+                            <span class="result-position">${globalPosition}</span>
+                            <div style="flex: 1;">
+                                <a href="${result.url}" target="_blank" class="result-title">
+                                    ${result.title}
+                                    ${result.verified ? '<span class="verified-badge"><i class="fas fa-check"></i> Verificado</span>' : ''}
+                                </a>
+                                <div class="result-url">${result.url}</div>
+                                <div class="result-description">${result.description}</div>
+                                ${socialStats}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsContent.innerHTML = html;
+            
+            // Update pagination controls
+            updatePaginationControls();
+            
+            resultsContainer.classList.add('show');
+            exportCsvBtn.style.display = 'inline-flex';
+            exportExcelBtn.style.display = 'inline-flex';
+            pagination.style.display = totalPages > 1 ? 'flex' : 'none';
+        }
+
+        function updatePaginationControls() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageNumbers = document.getElementById('pageNumbers');
+
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+
+            // Generate page numbers
+            let pageNumbersHtml = '';
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const isCurrentPage = i === currentPage;
+                pageNumbersHtml += `
+                    <button onclick="goToPage(${i})" ${isCurrentPage ? 'class="current-page"' : ''}>
+                        ${i}
+                    </button>
+                `;
+            }
+
+            pageNumbers.innerHTML = pageNumbersHtml;
+        }
+
+        function changePage(direction) {
+            const newPage = currentPage + direction;
+            if (newPage >= 1 && newPage <= totalPages) {
+                goToPage(newPage);
+            }
+        }
+
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages && page !== currentPage) {
+                loadResultsPage(currentQuery, page);
+            }
+        }
+
+        function updateProgress(percentage, message, method = '') {
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = message;
+            if (method) {
+                document.getElementById('progressMethod').textContent = method;
+            }
+        }
+
+        function showError(message) {
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle"></i> ${message}</div>`;
+            document.getElementById('resultsContainer').classList.add('show');
+        }
+
+        // Export functionality
+        document.getElementById('exportCsvBtn').addEventListener('click', function() {
+            if (currentQuery) {
+                window.open(`/export/csv/${encodeURIComponent(currentQuery)}`, '_blank');
+            }
+        });
+
+        document.getElementById('exportExcelBtn').addEventListener('click', function() {
+            if (currentQuery) {
+                window.open(`/export/excel/${encodeURIComponent(currentQuery)}`, '_blank');
+            }
+        });
+
+        // Load search history
+        async function loadHistory() {
+            try {
+                const response = await fetch('/history');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to load history');
+                }
+                
+                const history = data.history || [];
+                const historyContent = document.getElementById('historyContent');
+                
+                if (history.length === 0) {
+                    historyContent.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No hay historial de búsquedas. Comienza realizando una búsqueda arriba.</p>';
+                    return;
+                }
+
+                let html = '';
+                history.forEach(item => {
+                    html += `
+                        <div class="history-item">
+                            <div onclick="loadHistoryResults('${item.query.replace(/'/g, '\\\'')}')" style="flex: 1; cursor: pointer;">
+                                <div class="history-query">${item.query}</div>
+                                <div class="history-meta">
+                                    ${item.total_results || item.actual_results || 0} resultados • ${new Date(item.timestamp).toLocaleDateString()}
+                                </div>
+                            </div>
+                            <div class="history-actions">
+                                <button class="delete-btn" onclick="deleteSearch(${item.id}, event)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <i class="fas fa-chevron-right" style="color: #ccc; margin-left: 10px;"></i>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                historyContent.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading history:', error);
+                const historyContent = document.getElementById('historyContent');
+                historyContent.innerHTML = `<div class="error-message">Error cargando historial: ${error.message}</div>`;
+            }
+        }
+
+        // Delete specific search
+        async function deleteSearch(searchId, event) {
+            event.stopPropagation();
+            
+            if (confirm('¿Estás seguro de que quieres eliminar esta búsqueda?')) {
+                try {
+                    const response = await fetch(`/history/${searchId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        loadHistory();
+                        showMessage('Búsqueda eliminada exitosamente', 'success');
+                    } else {
+                        showMessage(data.error || 'Error al eliminar búsqueda', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error deleting search:', error);
+                    showMessage('Error eliminando búsqueda: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Clear all history
+        async function clearAllHistory() {
+            if (confirm('¿Estás seguro de que quieres limpiar TODO el historial? Esto no se puede deshacer.')) {
+                try {
+                    const response = await fetch('/history', {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        loadHistory();
+                        showMessage('Todo el historial fue limpiado exitosamente', 'success');
+                    } else {
+                        showMessage(data.error || 'Error al limpiar historial', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error clearing history:', error);
+                    showMessage('Error limpiando historial: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Show success/error messages
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${message}`;
+            
+            const container = document.querySelector('.container');
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 5000);
+        }
+
+        // Load results from history
+        async function loadHistoryResults(query) {
+            try {
+                currentQuery = query;
+                currentPage = 1;
+                await loadResultsPage(query, 1);
+                
+                // Scroll to results
+                document.getElementById('resultsContainer').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error loading historical results:', error);
+                showError('Error cargando resultados históricos: ' + error.message);
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select all platforms by default
+            selectAllPlatforms();
+            loadHistory();
+        });
+    </script>
+</body>
+</html>
