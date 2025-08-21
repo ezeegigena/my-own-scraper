@@ -1,6 +1,9 @@
 {
   "name": "proxy-rotation-social-scraper",
   "version": "5.0.0",
+  "engines": {
+    "node": "22.x"
+  },
   "description": "Advanced social media lead scraper with proxy rotation and anti-detection",
   "main": "server.js",
   "type": "module",
