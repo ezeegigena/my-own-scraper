@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Scraper Masivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .form-container {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-item:hover {
+            border-color: #4facfe;
+            background-color: #f8f9ff;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .checkbox-item.checked {
+            border-color: #4facfe;
+            background-color: #f0f8ff;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .progress-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e1e5e9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .results-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .results-container h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .download-btn {
+            background: linear-gradient(45deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c66;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        .success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #6c6;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            color: #1976d2;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h4 {
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Google Scraper Masivo</h1>
+            <p>Extrae datos de contacto de negocios de manera automatizada</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="info-box">
+                <h4>📋 Datos que se extraen automáticamente:</h4>
+                <ul>
+                    <li><strong>Nombre:</strong> Nombre del negocio o contacto</li>
+                    <li><strong>Teléfono:</strong> Número de contacto</li>
+                    <li><strong>Email:</strong> Dirección de correo electrónico</li>
+                    <li><strong>Sitio Web:</strong> URL del sitio web o perfil</li>
+                </ul>
+                <p><strong>📁 Los resultados se guardan en:</strong> <code>results/scraped_data.csv</code></p>
+            </div>
+            
+            <form id="scraperForm">
+                <div class="form-group">
+                    <label for="keywords">Tipo de Negocio (separados por comas):</label>
+                    <textarea id="keywords" rows="3" placeholder="restaurantes, inmobiliarias, hoteles, dentistas, abogados, ferreterías"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Plataformas donde Buscar:</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="instagram" name="platforms" value="instagram">
+                            <label for="instagram">📷 Instagram</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="googlemaps" name="platforms" value="googlemaps">
+                            <label for="googlemaps">🗺️ Google Maps</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="linkedin" name="platforms" value="linkedin">
+                            <label for="linkedin">💼 LinkedIn</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="facebook" name="platforms" value="facebook">
+                            <label for="facebook">📘 Facebook</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Ubicación (opcional):</label>
+                    <input type="text" id="location" placeholder="Madrid, Barcelona, Buenos Aires, etc.">
+                </div>
+                
+                <div class="form-group">
+                    <label for="maxLeads">Cantidad Máxima de Leads:</label>
+                    <input type="number" id="maxLeads" min="1" max="1000" value="50">
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">
+                    🚀 Iniciar Scraping
+                </button>
+            </form>
+            
+            <div id="progressContainer" class="progress-container">
+                <h3>📊 Progreso del Scraping:</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Iniciando...</div>
+            </div>
+            
+            <div id="resultsContainer" class="results-container">
+                <h3>✅ Scraping Completado</h3>
+                <p id="resultsText">Los datos han sido extraídos y guardados exitosamente.</p>
+                <a href="#" id="downloadBtn" class="download-btn" style="display: none;">
+                    📥 Descargar Archivo CSV
+                </a>
+            </div>
+            
+            <div id="messageContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let statusCheckInterval;
+        
+        // Handle checkbox styling
+        document.querySelectorAll('.checkbox-item').forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            
+            item.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    checkbox.checked = !checkbox.checked;
+                }
+                
+                if (checkbox.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+            });
+            
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    item.classList.add('checked');
+                } else {
+                    item.classList.remove('checked');
+                }
+            });
+        });
+        
+        // Handle form submission
+        document.getElementById('scraperForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const keywords = document.getElementById('keywords').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const maxLeads = parseInt(document.getElementById('maxLeads').value);
+            
+            const selectedPlatforms = Array.from(document.querySelectorAll('input[name="platforms"]:checked'))
+                .map(cb => cb.value);
+            
+            // Validation
+            if (!keywords) {
+                showMessage('Por favor, ingresa al menos un tipo de negocio.', 'error');
+                return;
+            }
+            
+            if (selectedPlatforms.length === 0) {
+                showMessage('Por favor, selecciona al menos una plataforma.', 'error');
+                return;
+            }
+            
+            // Prepare data
+            const keywordList = keywords.split(',').map(k => k.trim()).filter(k => k);
+            
+            const requestData = {
+                keywords: keywordList,
+                platforms: selectedPlatforms,
+                location: location,
+                max_leads: maxLeads
+            };
+            
+            // Show progress and disable form
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('submitBtn').disabled = true;
+            clearMessages();
+            
+            try {
+                const response = await fetch('/api/scrape', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Start checking status
+                    startStatusCheck();
+                } else {
+                    showMessage(`❌ Error: ${result.error}`, 'error');
+                    resetForm();
+                }
+            } catch (error) {
+                showMessage(`❌ Error de conexión: ${error.message}`, 'error');
+                resetForm();
+            }
+        });
+        
+        function startStatusCheck() {
+            statusCheckInterval = setInterval(checkStatus, 2000); // Check every 2 seconds
+        }
+        
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                // Update progress bar
+                document.getElementById('progressFill').style.width = status.progress + '%';
+                document.getElementById('progressText').textContent = status.message;
+                
+                if (!status.is_running && status.progress === 100) {
+                    // Scraping completed
+                    clearInterval(statusCheckInterval);
+                    showResults(status);
+                    resetForm();
+                } else if (!status.is_running && status.progress === 0) {
+                    // Error occurred
+                    clearInterval(statusCheckInterval);
+                    showMessage(`❌ ${status.message}`, 'error');
+                    resetForm();
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+            }
+        }
+        
+        function showResults(status) {
+            document.getElementById('progressContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+            document.getElementById('resultsText').textContent = status.message;
+            
+            if (status.csv_file) {
+                const filename = status.csv_file.split('/').pop();
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.href = `/api/download/${filename}`;
+                downloadBtn.style.display = 'inline-block';
+            }
+        }
+        
+        function resetForm() {
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('progressContainer').style.display = 'none';
+        }
+        
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            messageContainer.appendChild(messageDiv);
+        }
+        
+        function clearMessages() {
+            document.getElementById('messageContainer').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
+
